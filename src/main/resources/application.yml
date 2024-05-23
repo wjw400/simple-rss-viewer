@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/simple_rss_viewer
+    username: postgres
+    password: 830984
+    driver-class-name: org.postgresql.Driver
+    schema: public
