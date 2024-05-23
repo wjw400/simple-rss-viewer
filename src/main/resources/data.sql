@@ -1,0 +1,1 @@
+insert into rss_feeds (url, title) values ('https://stackoverflow.blog/feed', 'Stack Overflow');
