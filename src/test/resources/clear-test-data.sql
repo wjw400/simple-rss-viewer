@@ -1,0 +1,1 @@
+TRUNCATE TABLE rss_feeds, rss_items CASCADE

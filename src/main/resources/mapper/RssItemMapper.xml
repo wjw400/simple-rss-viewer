@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.simple.rss.viewer.mapper.RssItemMapper">
+    <resultMap id="feedDTOResultMap" type="com.simple.rss.viewer.entity.dto.RssFeedDTO">
+        <result column="feedId" property="id"/>
+        <result column="url" property="url"/>
+        <result column="feedTitle" property="title" />
+        <collection property="rssItems" ofType="com.simple.rss.viewer.entity.model.RssItem">
+            <id column="itemId" property="id"/>
+            <result column="guid" property="guid"/>
+            <result column="description" property="description"/>
+            <result column="link" property="link"/>
+            <result column="createdTime" property="createdTime"/>
+        </collection>
+    </resultMap>
+
+    <select id="findAllFeedsTop10Item" resultMap="feedDTOResultMap">
+        select
+            *
+        from
+        (
+            select
+                ri.id as itemId,
+                ri.rss_feed_id as feedId,
+                ri.guid guid,
+                ri.description as description,
+                ri.link as link,
+                ri.title as itemTitle,
+                ri.created_time as createdTime,
+                rf.url as url,
+                rf.title as feedTitle,
+                row_number() over (partition by ri.rss_feed_id order by ri.created_time desc) as row_num
+            from
+                rss_items ri
+            left join rss_feeds rf on ri.rss_feed_id = rf.id
+        ) a
+        where
+            row_num &lt;= 10
+    </select>
+</mapper>

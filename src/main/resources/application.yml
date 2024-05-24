@@ -1,7 +1,11 @@
+server:
+  port: 8088
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/simple_rss_viewer
     username: postgres
-    password: 830984
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     schema: public
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml
