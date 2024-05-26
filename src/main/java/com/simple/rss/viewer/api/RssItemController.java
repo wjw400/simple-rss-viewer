@@ -13,9 +13,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/items")
 public class RssItemController {
+    private final RssItemService rssItemService;
 
     @Autowired
-    private RssItemService rssItemService;
+    public RssItemController(RssItemService rssItemService){
+        this.rssItemService = rssItemService;
+    }
 
     @GetMapping("top10")
     public ResponseEntity<List<RssFeedDTO>> getTop10Items(){
