@@ -7,10 +7,12 @@
         <result column="feedTitle" property="title" />
         <collection property="rssItems" ofType="com.simple.rss.viewer.entity.model.RssItem">
             <id column="itemId" property="id"/>
+            <result column="feedId" property="feedId"/>
             <result column="guid" property="guid"/>
             <result column="description" property="description"/>
             <result column="link" property="link"/>
             <result column="createdTime" property="createdTime"/>
+            <result column="itemTitle" property="title"/>
         </collection>
     </resultMap>
 
@@ -37,4 +39,12 @@
         where
             row_num &lt;= 10
     </select>
+    <insert id="insertBatch">
+        insert into
+            rss_items (rss_feed_id, guid, description, link, title, created_time)
+        values
+        <foreach collection="rssItems" separator="," item="rssItem">
+            (#{rssItem.feedId}, #{rssItem.guid}, #{rssItem.description}, #{rssItem.link}, #{rssItem.title}, TO_TIMESTAMP('${rssItem.createdTime}', 'YYYY-MM-DDTHH24:MI:SS')::timestamp)
+        </foreach>
+    </insert>
 </mapper>

@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class RssFeed {
-    public Long id;
-    public String url;
-    public String title;
-    public String lastUpdate;
+    private Long id;
+    private String url;
+    private String title;
+    private String lastUpdated;
 }

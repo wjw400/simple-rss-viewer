@@ -4,11 +4,11 @@ import lombok.Data;
 
 @Data
 public class RssItem {
-    public Long id;
-    public Long feedId;
-    public String guid;
-    public String description;
-    public String link;
-    public String title;
-    public String createdTime;
+    private Long id;
+    private Long feedId;
+    private String guid;
+    private String description;
+    private String link;
+    private String title;
+    private String createdTime;
 }

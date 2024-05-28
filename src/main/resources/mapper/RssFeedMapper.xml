@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.simple.rss.viewer.mapper.RssFeedMapper">
+    <select id="findAllFeeds" resultType="com.simple.rss.viewer.entity.model.RssFeed">
+        SELECT
+            id,
+            url,
+            title,
+            last_updated as lastUpdated
+        FROM
+            rss_feeds
+    </select>
+</mapper>
