@@ -12,3 +12,9 @@ logging:
     root: INFO
 mybatis:
   mapper-locations: classpath*:mapper/*.xml
+feeds-update:
+  thread:
+    core-pool-size: 5
+    max-pool-size: 10
+    queue-capacity: 40
+

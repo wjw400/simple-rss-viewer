@@ -1,6 +1,8 @@
 package com.simple.rss.viewer.config;
 
 import com.simple.rss.viewer.common.Constant;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -11,18 +13,24 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
 @EnableAsync
+@ConfigurationProperties(prefix = "feeds-update.thread")
+@Data
 public class AsyncConfig {
+    private Integer corePoolSize = 5;
+    private Integer maxPoolSize = 10;
+    private Integer queueCapacity = 25;
 
     @Bean(name = Constant.UPDATE_FEEDS_EXECUTOR_BEAN_NAME)
     public Executor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5); // 核心线程池大小
-        executor.setMaxPoolSize(10); // 最大线程池大小
-        executor.setQueueCapacity(25); // 队列容量
-        executor.setKeepAliveSeconds(60); // 空闲线程存活时间
-        executor.setThreadNamePrefix("AsyncThread-"); // 线程名前缀
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy()); // 拒绝策略
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setKeepAliveSeconds(Constant.UPDATE_FEEDS_THREAD_KEEP_ALIVE_SECOND);
+        executor.setThreadNamePrefix(Constant.UPDATE_FEEDS_THREAD_NAME_PREFIX);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.initialize();
+
         return executor;
     }
 }
