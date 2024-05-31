@@ -21,7 +21,6 @@ public class RssFeedService {
     public void updateFeedsItems(){
         List<RssFeed> rssFeeds = rssFeedMapper.findAllFeeds();
         retrieveFeedService.updateFeedsItems(rssFeeds);
-
     }
 
 }

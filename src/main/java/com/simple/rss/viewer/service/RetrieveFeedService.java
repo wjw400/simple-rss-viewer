@@ -25,12 +25,17 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @Slf4j
 public class RetrieveFeedService {
     private static final HttpClient client = HttpClients.createDefault();
     private final RssItemMapper rssItemMapper;
+    private final ConcurrentHashMap<String, Lock> feedLocks = new ConcurrentHashMap<>();
+
 
     @Autowired
     public RetrieveFeedService(RssItemMapper rssItemMapper) {
@@ -40,7 +45,7 @@ public class RetrieveFeedService {
     private static final HttpClientResponseHandler<List<RssItem>> feedResponseHandler = classicHttpResponse -> {
         InputStream stream = classicHttpResponse.getEntity().getContent();
         SyndFeedInput input = new SyndFeedInput();
-        SyndFeed feed = null;
+        SyndFeed feed;
         try {
             feed = input.build(new XmlReader(stream));
         } catch (FeedException e) {
@@ -73,14 +78,23 @@ public class RetrieveFeedService {
     @Async(Constant.UPDATE_FEEDS_EXECUTOR_BEAN_NAME)
     public void updateFeedItems(RssFeed rssFeed) {
         log.info("start update feed {}", rssFeed.getId());
-        try {
-            HttpUriRequest request = new HttpGet(rssFeed.getUrl());
-            List<RssItem> rssItems = RetrieveFeedService.client.execute(request, RetrieveFeedService.feedResponseHandler);
-            rssItems.forEach(rssItem -> rssItem.setFeedId(rssFeed.getId()));
-            rssItemMapper.insertBatch(rssItems);
-        } catch (IOException e) {
-            log.error("Failed to retrieve feed content. Rss feed:{}", rssFeed, e);
+        feedLocks.putIfAbsent(rssFeed.getUrl(), new ReentrantLock());
+        Lock lock = feedLocks.get(rssFeed.getUrl());
+        if (lock.tryLock()){
+            try {
+                HttpUriRequest request = new HttpGet(rssFeed.getUrl());
+                List<RssItem> rssItems = RetrieveFeedService.client.execute(request, RetrieveFeedService.feedResponseHandler);
+                rssItems.forEach(rssItem -> rssItem.setFeedId(rssFeed.getId()));
+                rssItemMapper.insertBatch(rssItems);
+                log.info("Update feed {} complete", rssFeed.getId());
+            } catch (IOException e) {
+                log.error("Failed to retrieve feed content. Rss feed:{}", rssFeed, e);
+            }finally {
+                feedLocks.remove(rssFeed.getUrl());
+                lock.unlock();
+            }
+        }else {
+            log.warn("Skipping update content for {} as it's already being updated.", rssFeed.getUrl());
         }
-        log.info("Update feed {} complete", rssFeed.getId());
     }
 }
